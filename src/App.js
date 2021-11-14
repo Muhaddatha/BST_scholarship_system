@@ -1,24 +1,38 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState, useEffect } from "react";
+import { db } from "./firebase/firebase.config";
+import { collection, getDocs } from "firebase/firestore";
+import ThemeProvider from "@mui/material/styles/ThemeProvider";
+import theme from "./theme";
+import { makeStyles } from '@mui/styles';
+
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+  },
+}));
 
 function App() {
+
+  const [applicants, setApplicants] = useState([]);
+  const applicantsCollectionRef = collection(db, "applicants");
+
+  useEffect(() => {
+    const getApplicants = async () => {
+      const data = await getDocs(applicantsCollectionRef);
+      setApplicants(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+    }
+
+    getApplicants();
+    console.log('applicants', applicants);
+  }, []);
+
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ThemeProvider theme={theme}>
+      <div className="App">
+      
+      </div>
+    </ThemeProvider>
   );
 }
 
