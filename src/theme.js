@@ -5,7 +5,7 @@ import lessToJs from 'less-vars-to-js';
 const lessVariables = require('!!raw-loader!./styling/styleVariables.less').default;
 export const vars = lessToJs(lessVariables, { resolveVariables: true, stripPrefix: true });
 
-export const { primaryColor, secondaryColor } = vars;
+export const { primaryColor, secondaryColor, backgroundNormal, backgroundLight, backgroundDark, backgroundLighter } = vars;
 
 const theme = {
     lightMode: true,
@@ -22,3 +22,5 @@ const theme = {
         },
     }
 }
+
+export default createTheme(theme);
