@@ -6,7 +6,7 @@ import { Button, CircularProgress, MenuItem, Select, TextField } from "@mui/mate
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import DesktopDatePicker from '@mui/lab/DesktopDatePicker';
-import { applicant, status } from "../models/applicant";
+import { applicant, status, gender } from "../models/applicant";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -27,6 +27,7 @@ export default (props: any) => {
     const [value, setValue] = React.useState(new Date());
     const [queryingDatabase, setQueryingDatabase] = React.useState(false);
     const [applicantStatus, setApplicantStatus] = React.useState(status.freshman);
+    const [genderValue, setGenderValue] = React.useState<gender>(gender.male);
     const [applicationForm, setApplicationForm] = React.useState<applicant>()
 
     const KEYS = {
@@ -51,7 +52,30 @@ export default (props: any) => {
     const handleFormValueChange = (value: any, key: string) => {
         console.log(`value: ${value}, key: ${key}`);
 
+        switch (key) {
+            case KEYS.STUDENT_NUMBER:
+                break;
+            case KEYS.FIRST_NAME:
+                break;
+            case KEYS.LAST_NAME:
+                break;
+            case KEYS.PHONE_NUMBER:
+                break;
+            case KEYS.EMAIL_ADDRESS:
+                break;
+            case KEYS.GENDER:
+                break;
+            case KEYS.DATE_OF_BIRTH:
+                break;
+            case KEYS.STATUS:
+                break;
+            case KEYS.CUMULATIVE_GPA:
+                break;
+            case KEYS.NUMBER_OF_CREDIT_HOURS:
+                break;
+        }
         // change applicant status state
+        // change gender value state
     }
     return(
         <Box className={classes.root} mt={3} mb={3} display="flex" flexDirection="column" width="70%" bgcolor={backgroundNormal}>
@@ -67,6 +91,15 @@ export default (props: any) => {
                     <TextField label="Phone Number" variant="outlined" onChange={(e) => handleFormValueChange(e.target.value, KEYS.PHONE_NUMBER)} />
                     <TextField label="Email Address" variant="outlined" onChange={(e) => handleFormValueChange(e.target.value, KEYS.EMAIL_ADDRESS)} />
                     <TextField label="Gender" variant="outlined" onChange={(e) => handleFormValueChange(e.target.value, KEYS.GENDER)} />
+                    <Select
+                      label="Gender"
+                      value={genderValue}
+                      onChange={(e) => handleFormValueChange(e.target.value, KEYS.GENDER)}
+                    >
+                        <MenuItem value={gender.male}>{gender.male}</MenuItem>
+                        <MenuItem value={gender.female}>{gender.female}</MenuItem>
+                    </Select>
+                      
                     <LocalizationProvider dateAdapter={AdapterDateFns}>
                         <DesktopDatePicker
                           label="Date of Birth"
