@@ -26,6 +26,11 @@ const useStyles = makeStyles((theme) => ({
             width: '100%',
             display: 'flex',
             justifyContent: 'center',
+            flexDirection: 'column',
+            '& .MuiFormHelperText-root': {
+                width: '80%',
+                alignSelf: 'center',
+            },
         },
         '& .MuiFormControl-root': {
             width: '80%',
@@ -33,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
         },
         '& .MuiSelect-root': {
             marginTop: '20px',
-        }
+        },
     },
 }));
 
@@ -44,7 +49,7 @@ export default (props: any) => {
     const [studentNumber, setStudentNumber] = React.useState<number>(0);
     const [queryingDatabase, setQueryingDatabase] = React.useState(false);
     const [applicationForm, setApplicationForm] = React.useState<applicant>({
-        student_number: undefined,
+        student_number: 0,
         first_name: '',
         last_name: '',
         phone_number: '',
@@ -52,8 +57,8 @@ export default (props: any) => {
         gender: gender.male,
         date_of_birth: Timestamp.now(),
         status: status.freshman,
-        cumulative_gpa: undefined,
-        number_of_credit_hours: undefined,
+        cumulative_gpa: 0.00,
+        number_of_credit_hours: 0,
     });
 
     const KEYS = {
@@ -81,6 +86,10 @@ export default (props: any) => {
         cumulative_gpa: '',
         number_of_credit_hours: '',
     });
+
+    const containsAlphabet = (str: string) => {
+        return /[a-zA-Z]/.test(str);
+    }
 
     const queryDatabase = () => {
         setQueryingDatabase(true);
@@ -112,12 +121,24 @@ export default (props: any) => {
                 setApplicationForm({...applicationForm, [key]: parseInt(value, 10) });
                 break;
             case KEYS.FIRST_NAME:
+                if (error.first_name.length > 0) {
+                    setError({...error, first_name: ''});
+                }
                 setApplicationForm({...applicationForm, [key]: value });
                 break;
             case KEYS.LAST_NAME:
+                if (error.last_name.length > 0) {
+                    setError({...error, first_name: ''});
+                }
                 setApplicationForm({...applicationForm, [key]: value });
                 break;
             case KEYS.PHONE_NUMBER:
+                if (error.phone_number.length > 0) {
+                    setError({...error, phone_number: ''});
+                }
+                if (containsAlphabet(value)) {
+                    setError({...error, phone_number: 'Please enter a valid phone number'});
+                }
                 setApplicationForm({...applicationForm, [key]: value });
                 break;
             case KEYS.EMAIL_ADDRESS:
@@ -149,7 +170,20 @@ export default (props: any) => {
     const submitApplication = () => {
         console.log('click submit application!');
         console.log('form values', applicationForm);
+        if (applicationForm.first_name.length <= 0) {
+            setError({...error, first_name: 'Please enter a first name'});
+        }
+        if (applicationForm.last_name.length <= 0) {
+            setError({...error, last_name: 'Please enter a last name'});
+        }
+        if (applicationForm.phone_number.length <= 0) {
+            setError({...error, last_name: 'Please enter phone number'});
+        }
+        if (!(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im.test(applicationForm.phone_number))) {
+            setError({...error, phone_number: 'Please enter a valid phone number'});
+        }
     }
+
     return(
         <Box className={classes.root} mt={3} mb={3} display="flex" flexDirection="column" width="70%" bgcolor={backgroundNormal}>
             <Box width="100%" display="flex" mt={2} justifyContent="space-around" alignItems="center">
@@ -167,15 +201,15 @@ export default (props: any) => {
                         <FormHelperText error={Boolean(error.first_name)}>{error.first_name}</FormHelperText>
                     </Box>
                     <Box className="form-group">
-                        <TextField label="Last Name" variant="outlined" value={applicationForm.last_name} onChange={(e) => handleFormValueChange(e.target.value, KEYS.LAST_NAME)} />
+                        <TextField label="Last Name" variant="outlined" value={applicationForm.last_name} error={Boolean(error.last_name)}onChange={(e) => handleFormValueChange(e.target.value, KEYS.LAST_NAME)} />
                         <FormHelperText error={Boolean(error.last_name)}>{error.last_name}</FormHelperText>
                     </Box>
                     <Box className="form-group">
-                        <TextField label="Phone Number" variant="outlined" value={applicationForm.phone_number} onChange={(e) => handleFormValueChange(e.target.value, KEYS.PHONE_NUMBER)} />
+                        <TextField label="Phone Number" variant="outlined" value={applicationForm.phone_number} error={Boolean(error.phone_number)} onChange={(e) => handleFormValueChange(e.target.value, KEYS.PHONE_NUMBER)} />
                         <FormHelperText error={Boolean(error.phone_number)}>{error.phone_number}</FormHelperText>
                     </Box>
                     <Box className="form-group">
-                        <TextField label="Email Address" variant="outlined" value={applicationForm.email_address} onChange={(e) => handleFormValueChange(e.target.value, KEYS.EMAIL_ADDRESS)} />
+                        <TextField label="Email Address" variant="outlined" value={applicationForm.email_address} error={Boolean(error.email_address)} onChange={(e) => handleFormValueChange(e.target.value, KEYS.EMAIL_ADDRESS)} />
                         <FormHelperText error={Boolean(error.email_address)}>{error.email_address}</FormHelperText>
                     </Box>
                     <FormControl variant="outlined" fullWidth={true} error={Boolean(error.gender)}>
@@ -217,11 +251,11 @@ export default (props: any) => {
 
                     <FormControl variant="outlined" fullWidth={true} error={Boolean(error.date_of_birth)}></FormControl>
                     <Box className="form-group">
-                        <TextField label="Cumulative GPA" value={applicationForm.cumulative_gpa} variant="outlined" onChange={(e) => handleFormValueChange(e.target.value, KEYS.CUMULATIVE_GPA)} inputProps={{ type: 'number', min: 0.00, max: 4.00, step: 0.01 }} />
+                        <TextField label="Cumulative GPA" error={Boolean(error.cumulative_gpa)} value={applicationForm.cumulative_gpa} variant="outlined" onChange={(e) => handleFormValueChange(e.target.value, KEYS.CUMULATIVE_GPA)} inputProps={{ type: 'number', min: 0.00, max: 4.00, step: 0.01 }} />
                         <FormHelperText error={Boolean(error.cumulative_gpa)}>{error.cumulative_gpa}</FormHelperText>
                     </Box>
                     <Box className="form-group">
-                        <TextField label="Number of Credit Hours" value={applicationForm.number_of_credit_hours} variant="outlined" type="number" onChange={(e) => handleFormValueChange(e.target.value, KEYS.NUMBER_OF_CREDIT_HOURS)} inputProps={{ type: 'number', min: 0.00 }}/>
+                        <TextField label="Number of Credit Hours" error={Boolean(error.number_of_credit_hours)} value={applicationForm.number_of_credit_hours} variant="outlined" type="number" onChange={(e) => handleFormValueChange(e.target.value, KEYS.NUMBER_OF_CREDIT_HOURS)} inputProps={{ type: 'number', min: 0.00 }}/>
                         <FormHelperText error={Boolean(error.number_of_credit_hours)}>{error.number_of_credit_hours}</FormHelperText>
                     </Box>
                 </Box>

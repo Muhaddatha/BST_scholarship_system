@@ -13,14 +13,14 @@ export enum gender {
 }
 
 export interface applicant {
-    student_number?: number,
-    first_name?: string,
-    last_name?: string,
-    phone_number?: string,
+    student_number: number,
+    first_name: string,
+    last_name: string,
+    phone_number: string,
     email_address: string,
-    gender?: gender,
-    date_of_birth?: Timestamp,
-    status?: status,
-    cumulative_gpa?: number,
-    number_of_credit_hours?: number,
+    gender: gender,
+    date_of_birth: Timestamp,
+    status: status,
+    cumulative_gpa: number,
+    number_of_credit_hours: number,
 }
