@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import ThemeProvider from "@mui/material/styles/ThemeProvider";
-import theme from "./theme";
+import theme, { primaryColor } from "./theme";
 import { makeStyles } from '@mui/styles';
 import ApplyPage from "./pages/ApplyPage";
 
@@ -8,6 +8,8 @@ const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
     justifyContent: 'center',
+    backgroundColor: primaryColor,
+    minHeight: '100vh',
   },
 }));
 

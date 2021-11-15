@@ -42,6 +42,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
+let applicant_id: string;
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default (props: any) => {
@@ -96,6 +97,7 @@ export default (props: any) => {
         // check if student exists in database
         DatabaseService.getApplicant(studentNumber).then((applicantList) => {
             if (applicantList.length > 0) {
+                applicant_id = applicantList[0].id;
                 delete applicantList[0].id;
                 setApplicationForm(applicantList[0]);
                 console.log('applicant from backend', applicantList[0]);
@@ -113,7 +115,6 @@ export default (props: any) => {
     }
 
     const handleFormValueChange = (value: any, key: string) => {
-        console.log(`value: ${value}, key: ${key}`);
 
         switch (key) {
             case KEYS.STUDENT_NUMBER:
@@ -171,9 +172,6 @@ export default (props: any) => {
                 setApplicationForm({...applicationForm, [key]: value });
                 break;
         }
-        // change applicant status state
-        // change gender value state
-        // check number of credits is integer
     }
 
     const submitApplication = () => {
@@ -191,14 +189,38 @@ export default (props: any) => {
         if (!(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im.test(applicationForm.phone_number))) {
             setError({ ...error, phone_number: 'Please enter a valid phone number' });
         }
+        if (applicationForm.email_address.length <= 0) {
+            setError({ ...error, email_address: 'Please enter an email address'});
+        }
         if (!(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(applicationForm.email_address))) {
             setError({ ...error, email_address: 'Please enter a valid email address' });
         }
         if (!applicationForm.cumulative_gpa) {
             setError({ ...error, cumulative_gpa: 'Please enter a GPA value' });
         }
-        if (applicationForm.cumulative_gpa && (/^[0-4]\.\d\d$/.test(applicationForm.cumulative_gpa.toString()) || applicationForm.cumulative_gpa === 4.00)) {
+        if (applicationForm.cumulative_gpa && (applicationForm.cumulative_gpa >= 0.00 && applicationForm.cumulative_gpa <= 4.00)) {
             setError({ ...error, cumulative_gpa: 'Please enter a GPA value between 0.00 and 4.00 '});
+        }
+
+        // no errors encountered
+        console.log('errors', error);
+        if (Object.values(error).every(error_field => error_field === '')) {
+            if (applicant_id) {
+                DatabaseService.updateApplicant(applicant_id, applicationForm).then(() => {
+                    console.log('Applicant information updated successfully');
+                    console.log('error2', error);
+                }).catch((e) => {
+                    console.error("Error updating user in databse", e);
+                });
+            }
+            else {
+                DatabaseService.addApplicant(applicationForm).then((new_applicant) => {
+                    console.log('newly created applicant', new_applicant);
+                    console.log('error3', error);
+                }).catch((e) => {
+                    console.error("Error addindg a new user to database", e);
+                });
+            }
         }
     }
 
@@ -206,7 +228,7 @@ export default (props: any) => {
         <Box className={classes.root} mt={3} mb={3} display="flex" flexDirection="column" width="70%" bgcolor={backgroundNormal}>
             <Box width="100%" display="flex" mt={2} justifyContent="space-around" alignItems="center">
                 <Box className="form-group">
-                    <TextField label="Student Number" variant="outlined" onChange={(e) => handleFormValueChange(e.target.value, KEYS.STUDENT_NUMBER)} disabled={queryingDatabase}/>
+                    <TextField label="Student Number" variant="outlined" onChange={(e) => handleFormValueChange(e.target.value, KEYS.STUDENT_NUMBER)} disabled={queryingDatabase} inputProps={{ type: 'number', min: 0, step: 1 }}/>
                     <FormHelperText error={Boolean(error.student_number)}>{error.student_number}</FormHelperText>
                 </Box>
                 <Button variant="contained" onClick={queryDatabase} disabled={queryingDatabase}>Ok</Button>
