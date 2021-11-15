@@ -118,30 +118,33 @@ export default (props: any) => {
         switch (key) {
             case KEYS.STUDENT_NUMBER:
                 setStudentNumber(parseInt(value, 10));
-                setApplicationForm({...applicationForm, [key]: parseInt(value, 10) });
+                setApplicationForm({ ...applicationForm, [key]: parseInt(value, 10) });
                 break;
             case KEYS.FIRST_NAME:
                 if (error.first_name.length > 0) {
-                    setError({...error, first_name: ''});
+                    setError({ ...error, first_name: '' });
                 }
-                setApplicationForm({...applicationForm, [key]: value });
+                setApplicationForm({ ...applicationForm, [key]: value });
                 break;
             case KEYS.LAST_NAME:
                 if (error.last_name.length > 0) {
-                    setError({...error, first_name: ''});
+                    setError({ ...error, last_name: '' });
                 }
                 setApplicationForm({...applicationForm, [key]: value });
                 break;
             case KEYS.PHONE_NUMBER:
                 if (error.phone_number.length > 0) {
-                    setError({...error, phone_number: ''});
+                    setError({ ...error, phone_number: '' });
                 }
                 if (containsAlphabet(value)) {
-                    setError({...error, phone_number: 'Please enter a valid phone number'});
+                    setError({ ...error, phone_number: 'Please enter a valid phone number' });
                 }
                 setApplicationForm({...applicationForm, [key]: value });
                 break;
             case KEYS.EMAIL_ADDRESS:
+                if (error.email_address.length > 0) {
+                    setError({ ...error, email_address: '' });
+                }
                 setApplicationForm({...applicationForm, [key]: value });
                 break;
             case KEYS.GENDER:
@@ -156,6 +159,12 @@ export default (props: any) => {
                 setApplicationForm({...applicationForm, [key]: value });
                 break;
             case KEYS.CUMULATIVE_GPA:
+                if (error.cumulative_gpa.length > 0) {
+                    setError({ ...error, cumulative_gpa: '' });
+                }
+                if (containsAlphabet(value)) {
+                    setError({ ...error, cumulative_gpa: 'Please enter a valid GPA value' });
+                }
                 setApplicationForm({...applicationForm, [key]: value });
                 break;
             case KEYS.NUMBER_OF_CREDIT_HOURS:
@@ -171,16 +180,25 @@ export default (props: any) => {
         console.log('click submit application!');
         console.log('form values', applicationForm);
         if (applicationForm.first_name.length <= 0) {
-            setError({...error, first_name: 'Please enter a first name'});
+            setError({ ...error, first_name: 'Please enter a first name' });
         }
         if (applicationForm.last_name.length <= 0) {
-            setError({...error, last_name: 'Please enter a last name'});
+            setError({ ...error, last_name: 'Please enter a last name' });
         }
         if (applicationForm.phone_number.length <= 0) {
-            setError({...error, last_name: 'Please enter phone number'});
+            setError({ ...error, last_name: 'Please enter a phone number' });
         }
         if (!(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im.test(applicationForm.phone_number))) {
-            setError({...error, phone_number: 'Please enter a valid phone number'});
+            setError({ ...error, phone_number: 'Please enter a valid phone number' });
+        }
+        if (!(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(applicationForm.email_address))) {
+            setError({ ...error, email_address: 'Please enter a valid email address' });
+        }
+        if (!applicationForm.cumulative_gpa) {
+            setError({ ...error, cumulative_gpa: 'Please enter a GPA value' });
+        }
+        if (applicationForm.cumulative_gpa && (/^[0-4]\.\d\d$/.test(applicationForm.cumulative_gpa.toString()) || applicationForm.cumulative_gpa === 4.00)) {
+            setError({ ...error, cumulative_gpa: 'Please enter a GPA value between 0.00 and 4.00 '});
         }
     }
 
