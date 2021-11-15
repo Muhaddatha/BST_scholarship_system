@@ -13,6 +13,7 @@ import FormHelperText from "@mui/material/FormHelperText";
 const useStyles = makeStyles((theme) => ({
     root: {
         overflow: 'scrollbar',
+        height: '100%',
     },
     restOfForm: {
         '& .MuiTextField-root': {
@@ -38,12 +39,15 @@ const useStyles = makeStyles((theme) => ({
 // eslint-disable-next-line import/no-anonymous-default-export
 export default (props: any) => {
     const classes = useStyles();
-    const [value, setValue] = React.useState(new Date());
+    const [selectedDate, setSelectedDate] = React.useState(new Date());
     const [queryingDatabase, setQueryingDatabase] = React.useState(false);
-    const [applicantStatus, setApplicantStatus] = React.useState();
-    const [genderValue, setGenderValue] = React.useState<gender>();
-    const [applicationForm, setApplicationForm] = React.useState<applicant>();
+    const [applicantStatus, setApplicantStatus] = React.useState(status.freshman);
+    const [genderValue, setGenderValue] = React.useState<gender>(gender.male);
+    const [applicationForm, setApplicationForm] = React.useState({});
 
+    React.useEffect(() => {
+        
+    }, [])
     const KEYS = {
         STUDENT_NUMBER: "student_number",
         FIRST_NAME: "first_name",
@@ -81,35 +85,53 @@ export default (props: any) => {
 
         switch (key) {
             case KEYS.STUDENT_NUMBER:
+                setApplicationForm({...applicationForm, [key]: value });
                 break;
             case KEYS.FIRST_NAME:
+                setApplicationForm({...applicationForm, [key]: value });
                 break;
             case KEYS.LAST_NAME:
+                setApplicationForm({...applicationForm, [key]: value });
                 break;
             case KEYS.PHONE_NUMBER:
+                setApplicationForm({...applicationForm, [key]: value });
                 break;
             case KEYS.EMAIL_ADDRESS:
+                setApplicationForm({...applicationForm, [key]: value });
                 break;
             case KEYS.GENDER:
+                setGenderValue(value);
+                setApplicationForm({...applicationForm, [key]: value });
                 break;
             case KEYS.DATE_OF_BIRTH:
+                setSelectedDate(value);
+                setApplicationForm({...applicationForm, [key]: value });
                 break;
             case KEYS.STATUS:
+                setApplicantStatus(value);
+                setApplicationForm({...applicationForm, [key]: value });
                 break;
             case KEYS.CUMULATIVE_GPA:
+                setApplicationForm({...applicationForm, [key]: value });
                 break;
             case KEYS.NUMBER_OF_CREDIT_HOURS:
+                setApplicationForm({...applicationForm, [key]: value });
                 break;
         }
         // change applicant status state
         // change gender value state
         // check number of credits is integer
     }
+
+    const submitApplication = () => {
+        console.log('click submit application!');
+        console.log('form values', applicationForm);
+    }
     return(
         <Box className={classes.root} mt={3} mb={3} display="flex" flexDirection="column" width="70%" bgcolor={backgroundNormal}>
             <Box width="100%" display="flex" mt={2} justifyContent="space-around" alignItems="center">
                 <Box className="form-group">
-                    <TextField label="Student Number" variant="outlined" onChange={(e) => handleFormValueChange(e.target.value, KEYS.STUDENT_NUMBER)} disabled={queryingDatabase} />
+                    <TextField label="Student Number" variant="outlined" onChange={(e) => handleFormValueChange(e.target.value, KEYS.STUDENT_NUMBER)} disabled={queryingDatabase}/>
                     <FormHelperText error={Boolean(error.student_number)}>{error.student_number}</FormHelperText>
                 </Box>
                 <Button variant="contained" onClick={queryDatabase} disabled={queryingDatabase}>Ok</Button>
@@ -152,7 +174,7 @@ export default (props: any) => {
                             <DesktopDatePicker
                               label="Date of Birth"
                               inputFormat="MM/dd/yyyy"
-                              value={value}
+                              value={selectedDate}
                               onChange={(e) => handleFormValueChange(e, KEYS.DATE_OF_BIRTH)}
                               renderInput={(params) => <TextField variant="outlined" {...params} />}
                             />
@@ -184,6 +206,9 @@ export default (props: any) => {
                     </Box>
                 </Box>
             }
+            <Box width="100%" display="flex" justifyContent="center" mb={2}>
+                <Button variant="contained" color="secondary" onClick={submitApplication}>Submit</Button>
+            </Box>
         </Box>
     )
 }
