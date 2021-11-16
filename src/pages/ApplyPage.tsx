@@ -152,8 +152,6 @@ export default (props: any) => {
                 setApplicationForm({...applicationForm, [key]: value });
                 break;
             case KEYS.DATE_OF_BIRTH:
-                // console.log('past date of birth', applicationForm.date_of_birth);
-                // console.log('changing date of birth in application form', Timestamp.fromDate(value));
                 setApplicationForm({...applicationForm, [key]: Timestamp.fromDate(value) });
                 break;
             case KEYS.STATUS:
@@ -175,31 +173,38 @@ export default (props: any) => {
     }
 
     const submitApplication = () => {
-        console.log('click submit application!');
         console.log('form values', applicationForm);
         if (applicationForm.first_name.length <= 0) {
             setError({ ...error, first_name: 'Please enter a first name' });
+            return;
         }
         if (applicationForm.last_name.length <= 0) {
             setError({ ...error, last_name: 'Please enter a last name' });
+            return;
         }
         if (applicationForm.phone_number.length <= 0) {
             setError({ ...error, last_name: 'Please enter a phone number' });
+            return;
         }
         if (!(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im.test(applicationForm.phone_number))) {
             setError({ ...error, phone_number: 'Please enter a valid phone number' });
+            return;
         }
         if (applicationForm.email_address.length <= 0) {
             setError({ ...error, email_address: 'Please enter an email address'});
+            return;
         }
         if (!(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(applicationForm.email_address))) {
             setError({ ...error, email_address: 'Please enter a valid email address' });
+            return;
         }
         if (!applicationForm.cumulative_gpa) {
             setError({ ...error, cumulative_gpa: 'Please enter a GPA value' });
+            return;
         }
-        if (applicationForm.cumulative_gpa && (applicationForm.cumulative_gpa >= 0.00 && applicationForm.cumulative_gpa <= 4.00)) {
+        if (applicationForm.cumulative_gpa && (applicationForm.cumulative_gpa < 0.00 || applicationForm.cumulative_gpa >= 4.00)) {
             setError({ ...error, cumulative_gpa: 'Please enter a GPA value between 0.00 and 4.00 '});
+            return;
         }
 
         // no errors encountered
