@@ -2,7 +2,7 @@ import * as React from "react";
 import { makeStyles } from "@mui/styles";
 import Box from "@mui/material/Box";
 import { backgroundNormal } from "../theme";
-import { Button, CircularProgress, MenuItem, Select, TextField } from "@mui/material";
+import { Button, CircularProgress, MenuItem, Select, TextField, Typography } from "@mui/material";
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import DesktopDatePicker from '@mui/lab/DesktopDatePicker';
@@ -40,6 +40,13 @@ const useStyles = makeStyles((theme) => ({
             marginTop: '20px',
         },
     },
+    thankYouBox: {
+        height: 'fit-content',
+        alignSelf: 'center',
+        '& .MuiTypography-root': {
+            color: '#FFFFFF',
+        },
+    },
 }));
 
 let applicant_id: string;
@@ -49,6 +56,13 @@ export default (props: any) => {
     const classes = useStyles();
     const [studentNumber, setStudentNumber] = React.useState<number>(0);
     const [queryingDatabase, setQueryingDatabase] = React.useState(false);
+    const [firstTimeLoad, setFirstTimeLoad] = React.useState(false);
+    const [formSubmitted, setFormSubmitted] = React.useState(false);
+
+    React.useEffect(() => {
+        setFirstTimeLoad(false);
+    }, []);
+
     const [applicationForm, setApplicationForm] = React.useState<applicant>({
         student_number: 0,
         first_name: '',
@@ -107,11 +121,12 @@ export default (props: any) => {
             }
             console.log('form', applicationForm);
             setQueryingDatabase(false);
+            setFirstTimeLoad(true);
         }).catch((e) => {
             console.error('error getting student by student number', e);
             setQueryingDatabase(false);
+            setFirstTimeLoad(true);
         });
- 
     }
 
     const handleFormValueChange = (value: any, key: string) => {
@@ -207,6 +222,8 @@ export default (props: any) => {
             return;
         }
 
+        setFormSubmitted(true);
+
         // no errors encountered
         console.log('errors', error);
         if (Object.values(error).every(error_field => error_field === '')) {
@@ -230,8 +247,8 @@ export default (props: any) => {
     }
 
     return(
-        <Box className={classes.root} mt={3} mb={3} display="flex" flexDirection="column" width="70%" bgcolor={backgroundNormal}>
-            <Box width="100%" display="flex" mt={2} justifyContent="space-around" alignItems="center">
+        <>{!formSubmitted ? <Box className={classes.root} mt={3} mb={3} display="flex" flexDirection="column" width="70%" bgcolor={backgroundNormal}>
+            <Box width="100%" display="flex" mt={2} mb={1} justifyContent="space-around" alignItems="center">
                 <Box className="form-group">
                     <TextField label="Student Number" variant="outlined" onChange={(e) => handleFormValueChange(e.target.value, KEYS.STUDENT_NUMBER)} disabled={queryingDatabase} inputProps={{ type: 'number', min: 0, step: 1 }}/>
                     <FormHelperText error={Boolean(error.student_number)}>{error.student_number}</FormHelperText>
@@ -239,7 +256,7 @@ export default (props: any) => {
                 <Button variant="contained" onClick={queryDatabase} disabled={queryingDatabase}>Ok</Button>
             </Box>
             {
-                queryingDatabase ? <CircularProgress color="secondary" sx={{ alignSelf: 'center', marginTop: '10px', marginBottom: '10px' }}/> :
+                queryingDatabase ? <CircularProgress color="secondary" sx={{ alignSelf: 'center', marginTop: '10px', marginBottom: '10px' }}/> : firstTimeLoad ?
                 <Box className={classes.restOfForm} mt={2} mb={2} display="flex" flexDirection="column" justifyContent="center" alignItems="center">
                     <Box className="form-group">
                         <TextField label="First Name" variant="outlined" value={applicationForm.first_name} error={Boolean(error.first_name)} onChange={(e) => handleFormValueChange(e.target.value, KEYS.FIRST_NAME)} />
@@ -303,12 +320,20 @@ export default (props: any) => {
                         <TextField label="Number of Credit Hours" error={Boolean(error.number_of_credit_hours)} value={applicationForm.number_of_credit_hours} variant="outlined" type="number" onChange={(e) => handleFormValueChange(e.target.value, KEYS.NUMBER_OF_CREDIT_HOURS)} inputProps={{ type: 'number', min: 0.00 }}/>
                         <FormHelperText error={Boolean(error.number_of_credit_hours)}>{error.number_of_credit_hours}</FormHelperText>
                     </Box>
+                    <Box width="100%" display="flex" justifyContent="center" mb={1} mt={1}>
+                        <Button variant="contained" color="secondary" onClick={submitApplication}>Submit</Button>
+                    </Box>
                 </Box>
-            }
-            <Box width="100%" display="flex" justifyContent="center" mb={2}>
-                <Button variant="contained" color="secondary" onClick={submitApplication}>Submit</Button>
-            </Box>
+
+            : null }
         </Box>
+        :
+        <Box className={classes.thankYouBox}>
+            <Typography align="center" variant="h5">
+                Thank you for submitting your application to the B.S.T scholarship system!
+            </Typography>
+        </Box>
+        }</>
     )
 }
 
