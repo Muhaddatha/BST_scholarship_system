@@ -17,7 +17,7 @@ class DatabaseService {
 
     async getApplicants() : Promise<any[]> {
         const applicantsCollectionRef = collection(db, "applicants");
-        return (await (await getDocs(applicantsCollectionRef)).docs );
+        return (await (await getDocs(applicantsCollectionRef)).docs.map((doc) => ({...doc.data(), id: doc.id })));
     }
 
     async updateApplicant(applicant_id: string, updatedApplicant: any | applicant) : Promise<void> {

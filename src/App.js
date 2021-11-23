@@ -3,6 +3,7 @@ import ThemeProvider from "@mui/material/styles/ThemeProvider";
 import theme, { primaryColor } from "./theme";
 import { makeStyles } from '@mui/styles';
 import ApplyPage from "./pages/ApplyPage";
+import AdminPage from "./pages/AdminPage";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -23,7 +24,7 @@ function App() {
       <div className={classes.root}>
         <Router>
           <Routes>
-            <Route path="/admin" element={<div>Admin page</div>}>
+            <Route path="/admin" element={<AdminPage />}>
             </Route>
             <Route exact={true} path="/apply" element={<ApplyPage />} />
           </Routes>
