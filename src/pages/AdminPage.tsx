@@ -30,6 +30,9 @@ const useStyles = makeStyles((theme) => ({
       width: '80%',
       height: '380px',
     },
+    text: {
+      color: '#FFFFFF',
+    },
 }));
 
 function Row(props: { row: ReturnType<any>, displayEligibility: boolean}) {
@@ -119,7 +122,6 @@ export default (props:any) => {
 
   const getWinner = () => {
     setDeterminingWinner(true);
-    setUpdatingAwardeeDatastore(true);
     console.log('inside get winner');
 
     // filter out ineligible applicants
@@ -201,13 +203,14 @@ export default (props:any) => {
     }
 
     setDeterminingWinner(false);
+    setUpdateStarted(true);
     console.log('scholarshipwinners', scholarshipWinners);
   }
 
 
   return (
     <Box mb={2} mt={2} display="flex" flexDirection="column">
-      <Typography>Current applicants</Typography>
+      <Typography className={classes.text}>Current applicants</Typography>
       <TableContainer component={Paper}>
         <Table aria-label="collapsible table">
           <TableHead>
@@ -228,24 +231,24 @@ export default (props:any) => {
           </TableBody>
         </Table>
       </TableContainer>
-      {determiningWinner ? null : <Button color="secondary" onClick={getWinner}>Determine Scholarship Winner</Button>}
+      {determiningWinner && updateStarted ? null : <Button color="secondary" onClick={getWinner}>Determine Scholarship Winner</Button>}
       {
         determiningWinner ? <CircularProgress color="secondary" sx={{ alignSelf: 'center', marginTop: '10px', marginBottom: '10px' }}/>:
-        <Box>
+        updateStarted && <Box>
           {
             scholarshipWinners.length === 0 ? 
-            <Typography>
+            <Typography className={classes.text}>
               No Applicants are eligible to win the scholarship.
             </Typography> : 
             <>
               <Box>
-                Scholarship winner:
+                <Typography className={classes.text}>Scholarship winner:</Typography>
                 <TableContainer component={Paper}>
                   <Table>
                     <TableHead>
                       <TableRow>
                         <TableCell />
-                        <TableCell align="right">ID</TableCell>
+                        <TableCell align="right">Student ID</TableCell>
                         <TableCell align="right">Full Name</TableCell>
                         <TableCell align="right">GPA</TableCell>
                         <TableCell align="right">Credit Hours</TableCell>
@@ -264,11 +267,11 @@ export default (props:any) => {
                 <Button onClick={saveWinningApplicantInDataBase} color="primary">Save scholarship winner</Button>
               </Box>
               {
-                scholarshipWinners.length > 1 ? <Typography>The are more than two scholarship winners. Committee voting is neededd</Typography> : null
+                scholarshipWinners.length > 1 ? <Typography className={classes.text}>The are more than two scholarship winners. Committee voting is neededd</Typography> : null
               }
               {
                 updatingAwardeeDatastore ? <CircularProgress color="secondary" sx={{ alignSelf: 'center', marginTop: '10px', marginBottom: '10px' }}/> :
-                updateStarted ? <Typography>Awardee data store updated!</Typography> : null
+                updateStarted ? <Typography className={classes.text}>Awardee data store updated!</Typography> : null
               }
             </>
           }
