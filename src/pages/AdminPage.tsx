@@ -1,10 +1,10 @@
-import * as React from 'react';
+import React from 'react';
 import Box from '@mui/material/Box';
 import { makeStyles } from "@mui/styles";
 import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
 import CircularProgress from '@mui/material/CircularProgress';
 import Collapse from '@mui/material/Collapse';
-import IconButton from '@mui/material/IconButton';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -17,7 +17,6 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import DatabaseService from "../service/DatabaseService";
 import { applicant, status, gender } from "../models/applicant";
-import { Timestamp } from "@firebase/firestore";
 import { getAge } from "../utils/getAge";
 
 const useStyles = makeStyles((theme) => ({
@@ -33,6 +32,11 @@ const useStyles = makeStyles((theme) => ({
     text: {
       color: '#FFFFFF',
     },
+    button: {
+      width: 'fit-content',
+      marginTop: '10px !important',
+      marginBottom: '10px !important',
+    }
 }));
 
 function Row(props: { row: ReturnType<any>, displayEligibility: boolean}) {
@@ -106,18 +110,63 @@ export default (props:any) => {
   const [scholarshipWinners, setScholarshipWinners] = React.useState<applicant[]>([]);
   const [updatingAwardeeDatastore, setUpdatingAwardeeDatastore] = React.useState(false);
   const [updateStarted, setUpdateStarted] = React.useState(false);
+  const [emailSent, setEmailSent] = React.useState(false);
 
   React.useEffect(() => {
     DatabaseService.getApplicants().then(applicants => {
       setApplicants(applicants);
-    })
+    });
   }, []);
+
+  function OBJtoXML(obj: any, addApplicant: boolean) {
+    var xml = '';
+    for (var prop in obj) {
+      if (addApplicant) { xml += '<applicant>';}
+      xml += obj[prop] instanceof Array ? '' : "<" + prop + ">";
+      if (obj[prop] instanceof Array) {
+        for (var array in obj[prop]) {
+          xml += "<" + prop + ">";
+          xml += OBJtoXML(new Object(obj[prop][array]), false);
+          xml += "</" + prop + ">";
+        }
+      } else if (typeof obj[prop] == "object") {
+        xml += OBJtoXML(new Object(obj[prop]), false);
+      } else {
+        xml += obj[prop];
+      }
+      xml += obj[prop] instanceof Array ? '' : "</" + prop + ">";
+      if (addApplicant) { xml += "</applicant>"; }
+    }
+    var xml = xml.replace(/<\/?[0-9]{1,}>/g, '');
+    if (addApplicant) {
+      return '<?xml version="1.0" encoding="UTF-8"><applicants>' + xml + '</applicants>';
+    }
+    else {
+      return xml;
+    }
+    
+  }
+
+  const downloadXML = () => {
+    const file = new Blob([OBJtoXML(JSON.parse(JSON.stringify(applicants)), true)], { type: 'text/xml' });
+    const url = window.URL.createObjectURL(file);
+    const a = document.createElement('a');
+    a.setAttribute('hidden', '');
+    a.setAttribute('href', url);
+    a.setAttribute('download', 'applicants.xml');
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
 
   const saveWinningApplicantInDataBase = () => {
     // call backend function
     console.log("inside save winning applicant to database function");
     setUpdateStarted(true);
+    setEmailSent(true);
     console.log('scholarship winners', scholarshipWinners);
+    console.log('applicants to json', JSON.stringify(applicants));
+    console.log('winners to xml', OBJtoXML(JSON.parse(JSON.stringify(applicants)), true));
   }
 
   const getWinner = () => {
@@ -150,7 +199,7 @@ export default (props:any) => {
           }
         })
 
-        if (juniors.length > 2 || juniors.length === 0) {
+        if (juniors.length >= 2 || juniors.length === 0) {
           let female_students = new Array(0);
           highest_gpa_applicants.forEach(applicant => {
             if(applicant.gender === gender.female) {
@@ -158,7 +207,7 @@ export default (props:any) => {
             }
           })
 
-          if (female_students.length > 2 || female_students.length === 0) {
+          if (female_students.length >= 2 || female_students.length === 0) {
             let youngest_applicants = new Array(0);
             highest_gpa_applicants.sort((a, b) => {
               const ageA = getAge(a.date_of_birth.toDate());
@@ -211,6 +260,7 @@ export default (props:any) => {
   return (
     <Box mb={2} mt={2} display="flex" flexDirection="column">
       <Typography className={classes.text}>Current applicants</Typography>
+      <Button className={classes.button} size="small" color="secondary" variant="contained" onClick={downloadXML} fullWidth={false}>Download applicants' data</Button>
       <TableContainer component={Paper}>
         <Table aria-label="collapsible table">
           <TableHead>
@@ -264,7 +314,7 @@ export default (props:any) => {
                     </TableBody>
                   </Table>
                 </TableContainer>
-                <Button onClick={saveWinningApplicantInDataBase} color="primary">Save scholarship winner</Button>
+                <Button onClick={saveWinningApplicantInDataBase} color="secondary">Save scholarship winner</Button>
               </Box>
               {
                 scholarshipWinners.length > 1 ? <Typography className={classes.text}>The are more than two scholarship winners. Committee voting is neededd</Typography> : null
@@ -272,6 +322,9 @@ export default (props:any) => {
               {
                 updatingAwardeeDatastore ? <CircularProgress color="secondary" sx={{ alignSelf: 'center', marginTop: '10px', marginBottom: '10px' }}/> :
                 updateStarted ? <Typography className={classes.text}>Awardee data store updated!</Typography> : null
+              }
+              {
+                emailSent ? <Typography className={classes.text}>Email sent to awardee!{scholarshipWinners.length > 1 ? 's' : null}</Typography> : null
               }
             </>
           }
