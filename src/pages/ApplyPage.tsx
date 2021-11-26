@@ -74,6 +74,7 @@ export default (props: any) => {
         status: status.freshman,
         cumulative_gpa: 0.00,
         number_of_credit_hours: 0,
+        eligible: '',
     });
 
     const KEYS = {

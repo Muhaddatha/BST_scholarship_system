@@ -167,6 +167,29 @@ export default (props:any) => {
     console.log('scholarship winners', scholarshipWinners);
     console.log('applicants to json', JSON.stringify(applicants));
     console.log('winners to xml', OBJtoXML(JSON.parse(JSON.stringify(applicants)), true));
+    DatabaseService.addAwardee({ 
+      first_name: scholarshipWinners[0].first_name,
+      last_name: scholarshipWinners[0].last_name,
+      student_number: scholarshipWinners[0].student_number,
+      bill: (Math.floor(Math.random() * 1000000) + 1) / 100,
+    }).then(() => {
+      console.log('Added awardee 1');
+    }).catch(e => {
+      console.log('error adding awardee 1');
+    });
+
+    if (scholarshipWinners.length > 1) {
+      DatabaseService.addAwardee({ 
+        first_name: scholarshipWinners[1].first_name,
+        last_name: scholarshipWinners[1].last_name,
+        student_number: scholarshipWinners[1].student_number,
+        bill: (Math.floor(Math.random() * 1000000) + 1) / 100,
+      }).then(() => {
+        console.log('Added awardee 2');
+      }).catch(e => {
+        console.log('error adding awardee 2');
+      });
+    }
   }
 
   const getWinner = () => {

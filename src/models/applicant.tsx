@@ -23,4 +23,12 @@ export interface applicant {
     status: status,
     cumulative_gpa: number,
     number_of_credit_hours: number,
+    eligible: string,
+}
+
+export interface awardee {
+    student_number: number,
+    first_name: string,
+    last_name: string,
+    bill: number,
 }
