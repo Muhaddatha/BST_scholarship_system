@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import * as React from "react";
 import { makeStyles } from "@mui/styles";
 import Box from "@mui/material/Box";
@@ -16,6 +18,8 @@ const useStyles = makeStyles((theme) => ({
     root: {
         overflow: 'scrollbar',
         height: '100%',
+        width: '80%',
+        alignSelf: 'center',
     },
     restOfForm: {
         '& .MuiTextField-root': {

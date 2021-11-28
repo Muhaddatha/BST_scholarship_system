@@ -1,8 +1,11 @@
+/* eslint-disable */
 import React from 'react';
 import Box from '@mui/material/Box';
 import { makeStyles } from "@mui/styles";
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
+import DownloadIcon from '@mui/icons-material/Download';
 import CircularProgress from '@mui/material/CircularProgress';
 import Collapse from '@mui/material/Collapse';
 import Table from '@mui/material/Table';
@@ -21,9 +24,11 @@ import { getAge } from "../utils/getAge";
 
 const useStyles = makeStyles((theme) => ({
     root: {
-      width: '100vh',
+      // width: '100vh', 
       display: 'flex',
       justifyContent: 'center',
+      width: '80%',
+      alignSelf: 'center',
     },
     datagrid: {
       width: '80%',
@@ -31,12 +36,16 @@ const useStyles = makeStyles((theme) => ({
     },
     text: {
       color: '#FFFFFF',
+      fontSize: '1.2rem',
     },
     button: {
       width: 'fit-content',
       marginTop: '10px !important',
       marginBottom: '10px !important',
-    }
+    },
+    icon: {
+      alignSelf: 'flex-start',
+    },
 }));
 
 function Row(props: { row: ReturnType<any>, displayEligibility: boolean}) {
@@ -115,6 +124,8 @@ export default (props:any) => {
   React.useEffect(() => {
     DatabaseService.getApplicants().then(applicants => {
       setApplicants(applicants);
+      console.log('applicants from database', applicants);
+      setUpdatingAwardeeDatastore(false);
     });
   }, []);
 
@@ -161,21 +172,21 @@ export default (props:any) => {
 
   const saveWinningApplicantInDataBase = () => {
     // call backend function
-    console.log("inside save winning applicant to database function");
+    // console.log("inside save winning applicant to database function");
     setUpdateStarted(true);
     setEmailSent(true);
-    console.log('scholarship winners', scholarshipWinners);
-    console.log('applicants to json', JSON.stringify(applicants));
-    console.log('winners to xml', OBJtoXML(JSON.parse(JSON.stringify(applicants)), true));
+    // console.log('scholarship winners', scholarshipWinners);
+    // console.log('applicants to json', JSON.stringify(applicants));
+    // console.log('winners to xml', OBJtoXML(JSON.parse(JSON.stringify(applicants)), true));
     DatabaseService.addAwardee({ 
       first_name: scholarshipWinners[0].first_name,
       last_name: scholarshipWinners[0].last_name,
       student_number: scholarshipWinners[0].student_number,
       bill: (Math.floor(Math.random() * 1000000) + 1) / 100,
     }).then(() => {
-      console.log('Added awardee 1');
+      // console.log('Added awardee 1');
     }).catch(e => {
-      console.log('error adding awardee 1');
+      // console.log('error adding awardee 1');
     });
 
     if (scholarshipWinners.length > 1) {
@@ -185,16 +196,15 @@ export default (props:any) => {
         student_number: scholarshipWinners[1].student_number,
         bill: (Math.floor(Math.random() * 1000000) + 1) / 100,
       }).then(() => {
-        console.log('Added awardee 2');
+        // console.log('Added awardee 2');
       }).catch(e => {
-        console.log('error adding awardee 2');
+        // console.log('error adding awardee 2');
       });
     }
   }
 
   const getWinner = () => {
-    setDeterminingWinner(true);
-    console.log('inside get winner');
+    // console.log('inside get winner');
 
     // filter out ineligible applicants
     const eligible_applicants = applicants.filter((applicant) => applicant.cumulative_gpa >= 3.2 && applicant.number_of_credit_hours >= 12 && getAge(applicant.date_of_birth.toDate()) <= 23);
@@ -212,7 +222,7 @@ export default (props:any) => {
           highest_gpa_applicants.push(applicant);
         }
       })
-      console.log('highest_gpa_applicants', highest_gpa_applicants);
+      // console.log('highest_gpa_applicants', highest_gpa_applicants);
 
       if (highest_gpa_applicants.length > 1) {
         let juniors = new Array(0);
@@ -276,14 +286,18 @@ export default (props:any) => {
 
     setDeterminingWinner(false);
     setUpdateStarted(true);
-    console.log('scholarshipwinners', scholarshipWinners);
+    // console.log('scholarshipwinners', scholarshipWinners);
   }
 
 
   return (
-    <Box mb={2} mt={2} display="flex" flexDirection="column">
+    <Box mb={2} mt={2} display="flex" flexDirection="column" className={classes.root}>
       <Typography className={classes.text}>Current applicants</Typography>
-      <Button className={classes.button} size="small" color="secondary" variant="contained" onClick={downloadXML} fullWidth={false}>Download applicants' data</Button>
+      <Tooltip title="Download applicants' data as an XML file">
+        <IconButton className={classes.icon} onClick={downloadXML}>
+          <DownloadIcon color="secondary"/>
+        </IconButton>
+      </Tooltip>
       <TableContainer component={Paper}>
         <Table aria-label="collapsible table">
           <TableHead>
@@ -337,7 +351,7 @@ export default (props:any) => {
                     </TableBody>
                   </Table>
                 </TableContainer>
-                <Button onClick={saveWinningApplicantInDataBase} color="secondary">Save scholarship winner</Button>
+                <Button onClick={saveWinningApplicantInDataBase} color="secondary">Send email</Button>
               </Box>
               {
                 scholarshipWinners.length > 1 ? <Typography className={classes.text}>The are more than two scholarship winners. Committee voting is neededd</Typography> : null
